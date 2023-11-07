@@ -10,11 +10,18 @@ import (
 )
 
 type AdapterRepo struct {
+	db *gorm.DB
+}
+
+func NewAdapterRepo(db *gorm.DB) *AdapterRepo {
+	return &AdapterRepo{
+		db: db,
+	}
 }
 
 func (ct *AdapterRepo) Create(c context.Context, connectorID string, conf map[string]any) error {
 	connector := &entity.Adapter{}
-	db := GetClient().DB.WithContext(c)
+	db := ct.db.WithContext(c)
 	tx := db.Model(&entity.Adapter{}).Where("connector_id = ?", connectorID).First(connector)
 	// 记录不存在，创建新的连机器适配器账号
 	if tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
@@ -33,7 +40,7 @@ func (ct *AdapterRepo) Create(c context.Context, connectorID string, conf map[st
 
 func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) (*entity.Adapter, error) {
 	connector := new(entity.Adapter)
-	db := GetClient().DB.WithContext(c)
+	db := ct.db.WithContext(c)
 	tx := db.Preload(clause.Associations).First(connector)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -43,7 +50,7 @@ func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) 
 
 func (ct *AdapterRepo) Update(c context.Context, connectorID string, confs []entity.Config) error {
 	var connector *entity.Adapter
-	db := GetClient().DB.WithContext(c)
+	db := ct.db.WithContext(c)
 	tx := db.Where("connector_id = ?", connectorID).Joins("config").First(connector)
 	if tx.Error != nil {
 		return tx.Error
@@ -53,7 +60,7 @@ func (ct *AdapterRepo) Update(c context.Context, connectorID string, confs []ent
 }
 
 func (ct *AdapterRepo) Delete(c context.Context, connectID string) error {
-	return GetClient().DB.WithContext(c).Where("connector_id = ?", connectID).Delete(&entity.Adapter{}).Error
+	return ct.db.WithContext(c).Where("connector_id = ?", connectID).Delete(&entity.Adapter{}).Error
 }
 
 func configMerge(origin, replace []entity.Config) []entity.Config {
