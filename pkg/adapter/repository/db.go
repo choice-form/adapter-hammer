@@ -1,9 +1,9 @@
-package db
+package repository
 
 import (
 	"fmt"
 
-	"github.com/choice-form/adapter-hammer/pkg/adapter/entity"
+	"github.com/choice-form/adapter-hammer/pkg/adapter/model"
 	"github.com/choice-form/adapter-hammer/pkg/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -59,7 +59,7 @@ func NewClient(cfg *Config) *PGClient {
 
 func Migrate(db *gorm.DB) {
 	db.AutoMigrate(
-		&entity.Adapter{},
-		&entity.Config{},
+		&model.Adapter{},
+		&model.Config{},
 	)
 }

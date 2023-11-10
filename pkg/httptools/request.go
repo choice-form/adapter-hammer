@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 )
 
 type Response struct {
@@ -79,9 +78,9 @@ func JsonGet(req *Request) (*Response, error) {
 
 	// add params
 	if req.Input != nil {
-		var _query url.Values
+		// var _query url.Values
+		_query := _req.URL.Query()
 		for k, v := range req.Input {
-			_query := _req.URL.Query()
 			_query.Set(k, fmt.Sprint(v))
 		}
 		//如果参数中有中文参数,这个方法会进行URLEncode

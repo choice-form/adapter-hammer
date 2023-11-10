@@ -1,10 +1,10 @@
-package db
+package repository
 
 import (
 	"context"
 	"errors"
 
-	"github.com/choice-form/adapter-hammer/pkg/adapter/entity"
+	"github.com/choice-form/adapter-hammer/pkg/adapter/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,12 +20,12 @@ func NewAdapterRepo(db *gorm.DB) *AdapterRepo {
 }
 
 func (ct *AdapterRepo) Create(c context.Context, connectorID string, conf map[string]any) error {
-	connector := &entity.Adapter{}
+	connector := &model.Adapter{}
 	db := ct.db.WithContext(c)
-	tx := db.Model(&entity.Adapter{}).Where("connector_id = ?", connectorID).First(connector)
+	tx := db.Model(&model.Adapter{}).Where("connector_id = ?", connectorID).First(connector)
 	// 记录不存在，创建新的连机器适配器账号
 	if tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		newConnector := &entity.Adapter{
+		newConnector := &model.Adapter{
 			ConnectorID: connectorID,
 		}
 		newConnector.SetConfig(conf)
@@ -38,8 +38,8 @@ func (ct *AdapterRepo) Create(c context.Context, connectorID string, conf map[st
 	return nil
 }
 
-func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) (*entity.Adapter, error) {
-	connector := new(entity.Adapter)
+func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) (*model.Adapter, error) {
+	connector := new(model.Adapter)
 	db := ct.db.WithContext(c)
 	tx := db.Preload(clause.Associations).First(connector)
 	if tx.Error != nil {
@@ -48,8 +48,8 @@ func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) 
 	return connector, nil
 }
 
-func (ct *AdapterRepo) Update(c context.Context, connectorID string, confs []entity.Config) error {
-	var connector *entity.Adapter
+func (ct *AdapterRepo) Update(c context.Context, connectorID string, confs []model.Config) error {
+	var connector *model.Adapter
 	db := ct.db.WithContext(c)
 	tx := db.Where("connector_id = ?", connectorID).Joins("config").First(connector)
 	if tx.Error != nil {
@@ -60,10 +60,10 @@ func (ct *AdapterRepo) Update(c context.Context, connectorID string, confs []ent
 }
 
 func (ct *AdapterRepo) Delete(c context.Context, connectID string) error {
-	return ct.db.WithContext(c).Where("connector_id = ?", connectID).Delete(&entity.Adapter{}).Error
+	return ct.db.WithContext(c).Where("connector_id = ?", connectID).Delete(&model.Adapter{}).Error
 }
 
-func configMerge(origin, replace []entity.Config) []entity.Config {
+func configMerge(origin, replace []model.Config) []model.Config {
 	for k, v := range origin {
 		for _, val := range replace {
 			if v.ID == val.ID {
