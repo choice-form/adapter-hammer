@@ -3,8 +3,11 @@ package model
 import (
 	"fmt"
 
-	"github.com/choice-form/adapter-hammer/pkg/utils"
-	"github.com/choice-form/dingtalk-adapter/pkg/dingding/certificate"
+	"github.com/pkg/errors"
+)
+
+var (
+	ErrNotFoundConfig = errors.New("not found config")
 )
 
 type Adapter struct {
@@ -33,13 +36,15 @@ func (ct *Adapter) SetConfig(cfg map[string]any) {
 	ct.Configs = list
 }
 
-func (ct *Adapter) GetConfig() *certificate.Config {
-	var cfg = new(certificate.Config)
-	// var conf map[string]any
-	conf := make(map[string]any)
-	for _, v := range ct.Configs {
-		conf[v.Key] = v.Value
+func (ct *Adapter) GetConfigs() []Config {
+	return ct.Configs
+}
+
+func (ct *Adapter) GetConfigValue(key string) (string, error) {
+	for _, cfg := range ct.Configs {
+		if cfg.Key == key {
+			return cfg.Value, nil
+		}
 	}
-	utils.Map2Struct(conf, cfg)
-	return cfg
+	return "", ErrNotFoundConfig
 }
