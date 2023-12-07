@@ -53,11 +53,19 @@ func OKResponse(c *gin.Context, data map[string]any) {
 
 func ErrResponse(c *gin.Context, err error) {
 	if _err, ok := err.(*errno.APIError); ok {
-		c.JSON(http.StatusOK, &APIResponse{
-			ErrCode: _err.ErrCode,
-			Errmsg:  _err.Errmsg,
-			Err:     _err.Err,
-		})
+		if _e, ok := _err.Err.(error); ok {
+			c.JSON(http.StatusOK, &APIResponse{
+				ErrCode: _err.ErrCode,
+				Errmsg:  _err.Errmsg,
+				Err:     _e.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, &APIResponse{
+				ErrCode: _err.ErrCode,
+				Errmsg:  _err.Errmsg,
+				Err:     _err.Err,
+			})
+		}
 		return
 	}
 
