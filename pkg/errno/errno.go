@@ -61,3 +61,7 @@ func (e *APIError) Error() string {
 func (e *APIError) String() string {
 	return e.Error()
 }
+
+func (e *APIError) ToString() string {
+	return e.Error()
+}
