@@ -26,9 +26,28 @@ const (
 	DebugLevel Level = zap.DebugLevel // -1
 )
 
+var TxTraceIDKey = "x-txcn-trace-id"
+
+func contextValue(ctx context.Context, key string) string {
+	value := ctx.Value(ctx)
+	if v, ok := value.(string); ok {
+		return v
+	}
+	if v, ok := value.(*string); ok {
+		return *v
+	}
+	return ""
+}
+
 type Field = zap.Field
 
 func (l *Logger) Debug(msg string, fields ...Field) {
+	l.l.Debug(msg, fields...)
+}
+
+func (l *Logger) DebugWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
 	l.l.Debug(msg, fields...)
 }
 
@@ -36,20 +55,59 @@ func (l *Logger) Info(msg string, fields ...Field) {
 	l.l.Info(msg, fields...)
 }
 
+func (l *Logger) InfoWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
+	l.l.Info(msg, fields...)
+}
+
 func (l *Logger) Warn(msg string, fields ...Field) {
+	l.l.Warn(msg, fields...)
+}
+
+func (l *Logger) WarnWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
 	l.l.Warn(msg, fields...)
 }
 
 func (l *Logger) Error(msg string, fields ...Field) {
 	l.l.Error(msg, fields...)
 }
+
+func (l *Logger) ErrorWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
+	l.l.Error(msg, fields...)
+}
+
 func (l *Logger) DPanic(msg string, fields ...Field) {
 	l.l.DPanic(msg, fields...)
 }
+
+func (l *Logger) DPanicWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
+	l.l.DPanic(msg, fields...)
+}
+
 func (l *Logger) Panic(msg string, fields ...Field) {
 	l.l.Panic(msg, fields...)
 }
+
+func (l *Logger) PanicWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
+	l.l.Panic(msg, fields...)
+}
+
 func (l *Logger) Fatal(msg string, fields ...Field) {
+	l.l.Fatal(msg, fields...)
+}
+
+func (l *Logger) FatalWithTxTraceID(ctx context.Context, msg string, fields ...Field) {
+	traceID := contextValue(ctx, TxTraceIDKey)
+	fields = append(fields, String(TxTraceIDKey, traceID))
 	l.l.Fatal(msg, fields...)
 }
 
@@ -105,25 +163,39 @@ var (
 	Durationp   = zap.Durationp
 	Any         = zap.Any
 
-	Info   = std.Info
-	Warn   = std.Warn
-	Error  = std.Error
-	DPanic = std.DPanic
-	Panic  = std.Panic
-	Fatal  = std.Fatal
-	Debug  = std.Debug
+	Info                = std.Info
+	InfoWithTxTraceID   = std.InfoWithTxTraceID
+	Warn                = std.Warn
+	WarnWithTxTraceID   = std.WarnWithTxTraceID
+	Error               = std.Error
+	ErrorWithTxTraceID  = std.ErrorWithTxTraceID
+	DPanic              = std.DPanic
+	DPanicWithTxTraceID = std.DPanicWithTxTraceID
+	Panic               = std.Panic
+	PanicWithTxTraceID  = std.PanicWithTxTraceID
+	Fatal               = std.Fatal
+	FatalWithTxTraceID  = std.FatalWithTxTraceID
+	Debug               = std.Debug
+	DebugWithTxTraceID  = std.DebugWithTxTraceID
 )
 
 // not safe for concurrent use
 func ResetDefault(l *Logger) {
 	std = l
 	Info = std.Info
+	InfoWithTxTraceID = std.InfoWithTxTraceID
 	Warn = std.Warn
+	WarnWithTxTraceID = std.WarnWithTxTraceID
 	Error = std.Error
+	ErrorWithTxTraceID = std.ErrorWithTxTraceID
 	DPanic = std.DPanic
+	DPanicWithTxTraceID = std.DPanicWithTxTraceID
 	Panic = std.Panic
+	PanicWithTxTraceID = std.PanicWithTxTraceID
 	Fatal = std.Fatal
+	FatalWithTxTraceID = std.FatalWithTxTraceID
 	Debug = std.Debug
+	DebugWithTxTraceID = std.DebugWithTxTraceID
 }
 
 type Logger struct {
