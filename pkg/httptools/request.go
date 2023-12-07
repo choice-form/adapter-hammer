@@ -6,6 +6,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
+)
+
+var DefaultTimeout = 15 * time.Second
+
+type Method string
+
+var (
+	POST Method = "POST"
+	GET  Method = "GET"
 )
 
 type Response struct {
@@ -15,14 +25,20 @@ type Response struct {
 }
 
 type Request struct {
-	Method  string
+	Method  Method
 	Url     string
 	Input   map[string]any
 	Headers map[string]string
+	Timeout time.Duration
 }
 
-func request(_req *http.Request) (*Response, error) {
+func request(_req *http.Request, timeout time.Duration) (*Response, error) {
 	client := http.DefaultClient
+	if timeout != 0 {
+		client.Timeout = timeout
+	} else {
+		client.Timeout = DefaultTimeout
+	}
 	resp, err := client.Do(_req)
 	if err != nil {
 		return nil, err
@@ -53,7 +69,7 @@ func JsonPost(req *Request) (*Response, error) {
 	req.Method = "POST"
 	buf, _ := json.Marshal(req.Input)
 	_b := bytes.NewBuffer(buf)
-	_req, err := http.NewRequest(req.Method, req.Url, _b)
+	_req, err := http.NewRequest(string(req.Method), req.Url, _b)
 	if err != nil {
 		return nil, err
 	}
@@ -66,12 +82,12 @@ func JsonPost(req *Request) (*Response, error) {
 		}
 	}
 
-	return request(_req)
+	return request(_req, req.Timeout)
 }
 
 func JsonGet(req *Request) (*Response, error) {
-	req.Method = "GET"
-	_req, err := http.NewRequest(req.Method, req.Url, nil)
+	req.Method = GET
+	_req, err := http.NewRequest(string(req.Method), req.Url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -96,5 +112,5 @@ func JsonGet(req *Request) (*Response, error) {
 		}
 	}
 
-	return request(_req)
+	return request(_req, req.Timeout)
 }
