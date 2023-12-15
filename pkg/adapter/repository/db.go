@@ -19,12 +19,6 @@ type Config struct {
 
 var client *PGClient
 
-// func init() {
-// 	cfg := config.GetConfig()
-// 	pg := NewDBClient(&cfg.Postgres)
-// 	pgClient = pg
-// }
-
 type PGClient struct {
 	config *Config
 	DB     *gorm.DB

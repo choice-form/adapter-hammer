@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 )
 
@@ -20,31 +18,28 @@ func (ct *Adapter) TableName() string {
 	return "adapter"
 }
 
-func (ct *Adapter) SetConfig(cfg map[string]any) {
-	var list []Config
-	// var cfg map[string]any
-	// b, _ := json.Marshal(conf)
-	// json.Unmarshal(b, &cfg)
-	for k, v := range cfg {
-		conf := Config{
-			Key:   k,
-			Value: fmt.Sprint(v),
-			Salt:  "",
-		}
-		list = append(list, conf)
-	}
-	ct.Configs = list
+func (ct *Adapter) SetConfig(confs []Config) {
+	ct.Configs = confs
 }
 
 func (ct *Adapter) GetConfigs() []Config {
 	return ct.Configs
 }
 
-func (ct *Adapter) GetConfigValue(key string) (string, error) {
-	for _, cfg := range ct.Configs {
-		if cfg.Key == key {
-			return cfg.Value, nil
+func (ct *Adapter) GetConfig(key string) (*Config, error) {
+	for i := 0; i < len(ct.Configs); i++ {
+		if ct.Configs[i].Key == key {
+			return &ct.Configs[i], nil
 		}
 	}
-	return "", ErrNotFoundConfig
+	return &Config{}, ErrNotFoundConfig
+}
+
+func (ct *Adapter) GetConfigValue(key string) *string {
+	for _, cfg := range ct.Configs {
+		if cfg.Key == key {
+			return cfg.Value
+		}
+	}
+	return nil
 }
