@@ -10,6 +10,7 @@ require (
 	github.com/tidwall/gjson v1.17.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.uber.org/zap v1.26.0
+	golang.org/x/time v0.3.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
