@@ -9,4 +9,6 @@ var (
 	ErrorMethod           = &APIError{ErrCode: 404, Errmsg: "method 未找到"}
 	// ErrorParams      = &APIError{ErrCode: 403, Errmsg: "没有调用该接口的权限"}
 	ErrorOther = &APIError{ErrCode: 500, Errmsg: "未知错误"} // 服务自身错误
+
+	ErrorInitSubscription = &APIError{ErrCode: 501, Errmsg: "初始化事件订阅错误"} // 初始化事件订阅服务错误
 )
