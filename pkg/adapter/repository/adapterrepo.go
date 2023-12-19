@@ -56,19 +56,18 @@ func (ct *AdapterRepo) FindByConnectorID(c context.Context, connectorID string) 
 }
 
 func (ct *AdapterRepo) Update(c context.Context, connectorID string, adap model.Adapter) error {
-	connector := new(model.Adapter)
 	db := ct.db.WithContext(c)
-	tx := db.Preload(clause.Associations).Where("connector_id = ?", connectorID).First(connector)
-	if tx.Error != nil {
-		return tx.Error
-	}
+	// tx := db.Preload(clause.Associations).Where("connector_id = ?", connectorID).First(connector)
+	// if tx.Error != nil {
+	// 	return tx.Error
+	// }
 
-	for i := 0; i < len(adap.Configs); i++ {
-		adap.Configs[i].AdapterID = connector.ID
-	}
+	// for i := 0; i < len(adap.Configs); i++ {
+	// 	adap.Configs[i].AdapterID = connector.ID
+	// }
 
-	connector.Configs = adap.Configs
-	return db.Save(connector).Error
+	// connector.Configs = adap.Configs
+	return db.Save(adap.Configs).Error
 }
 
 func (ct *AdapterRepo) Delete(c context.Context, connectID string) error {
