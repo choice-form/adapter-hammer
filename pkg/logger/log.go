@@ -26,10 +26,10 @@ const (
 	DebugLevel Level = zap.DebugLevel // -1
 )
 
-var TxTraceIDKey = "x-txcn-trace-id"
+var TxTraceIDKey = "X-Txcn-Trace-Id"
 
 func contextValue(ctx context.Context, key string) string {
-	value := ctx.Value(ctx)
+	value := ctx.Value(TxTraceIDKey)
 	if v, ok := value.(string); ok {
 		return v
 	}
@@ -346,12 +346,12 @@ func NewWriteLogsFile(logFolder string) {
 
 const loggerCtxKey = "logger_ctx_key"
 
-// 给 ctx 注入一个 looger, logger 中包含Field(内含日志打印的 k-v对)
+// 给 ctx 注入一个 logger, logger 中包含Field(内含日志打印的 k-v对)
 func NewCtx(ctx context.Context, fields ...zapcore.Field) context.Context {
 	return context.WithValue(ctx, loggerCtxKey, WithCtx(ctx).With(fields...))
 }
 
-// 尝试从 context 中获取带有 traceId Field的 logge
+// 尝试从 context 中获取带有 traceId Field的 logger
 func WithCtx(ctx context.Context) *zap.Logger {
 	if ctx == nil {
 		return std.l

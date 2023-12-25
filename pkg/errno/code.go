@@ -10,5 +10,7 @@ var (
 	// ErrorParams      = &APIError{ErrCode: 403, Errmsg: "没有调用该接口的权限"}
 	ErrorOther = &APIError{ErrCode: 500, Errmsg: "未知错误"} // 服务自身错误
 
-	ErrorInitSubscription = &APIError{ErrCode: 501, Errmsg: "初始化事件订阅错误"} // 初始化事件订阅服务错误
+	ErrorInitSubscription = &APIError{ErrCode: 511, Errmsg: "初始化事件订阅错误"} // 初始化事件订阅服务错误
+	ErrorGetSubscription  = &APIError{ErrCode: 512, Errmsg: "查询事件订阅错误"}  // 查询事件订阅错误
+
 )
