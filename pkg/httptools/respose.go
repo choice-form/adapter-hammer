@@ -44,7 +44,11 @@ func (e *APIResponse) MarshalJSON() ([]byte, error) {
 }
 
 func OKResponse(c *gin.Context, data map[string]any) {
-	c.JSON(http.StatusOK, &APIResponse{
+	OKResponseWithCode(c, http.StatusOK, data)
+}
+
+func OKResponseWithCode(c *gin.Context, code int, data map[string]any) {
+	c.JSON(code, &APIResponse{
 		ErrCode: 0,
 		Errmsg:  "ok",
 		Data:    data,
@@ -54,13 +58,13 @@ func OKResponse(c *gin.Context, data map[string]any) {
 func ErrResponse(c *gin.Context, err error) {
 	if _err, ok := err.(*errno.APIError); ok {
 		if _e, ok := _err.Err.(error); ok {
-			c.JSON(http.StatusOK, &APIResponse{
+			c.JSON(_err.HttpCode, &APIResponse{
 				ErrCode: _err.ErrCode,
 				Errmsg:  _err.Errmsg,
 				Err:     _e.Error(),
 			})
 		} else {
-			c.JSON(http.StatusOK, &APIResponse{
+			c.JSON(_err.HttpCode, &APIResponse{
 				ErrCode: _err.ErrCode,
 				Errmsg:  _err.Errmsg,
 				Err:     _err.Err,
@@ -69,10 +73,9 @@ func ErrResponse(c *gin.Context, err error) {
 		return
 	}
 
-	c.JSON(http.StatusOK, &APIResponse{
+	c.JSON(http.StatusInternalServerError, &APIResponse{
 		ErrCode: 500,
 		Errmsg:  err.Error(),
 		Err:     err,
 	})
-
 }

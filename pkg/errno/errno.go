@@ -6,9 +6,10 @@ import (
 )
 
 type APIError struct {
-	ErrCode int64  `json:"err_code,omitempty"`
-	Errmsg  string `json:"errmsg,omitempty"`
-	Err     any    `json:"err,omitempty"`
+	HttpCode int
+	ErrCode  int64  `json:"err_code,omitempty"`
+	Errmsg   string `json:"errmsg,omitempty"`
+	Err      any    `json:"err,omitempty"`
 }
 
 func (e *APIError) SetCode(code any) *APIError {
