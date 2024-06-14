@@ -148,7 +148,7 @@ func TestJsonPost(t *testing.T) {
 	t.Run("test response http code 200 and empty body", func(t *testing.T) {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer r.Body.Close()
-			p, err := io.ReadAll(r.Body)
+			_, err := io.ReadAll(r.Body)
 			if err != nil {
 				t.Fatal(err)
 			}
