@@ -21,7 +21,7 @@ var (
 type Response struct {
 	Headers    http.Header
 	StatusCode int
-	Body       map[string]any
+	Body       *map[string]any
 }
 
 type Request struct {
@@ -51,15 +51,19 @@ func request(_req *http.Request, timeout time.Duration) (*Response, error) {
 	}
 
 	var result map[string]any
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return nil, err
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		if len(body) > 0 {
+			result = map[string]any{
+				"response": string(body),
+			}
+		}
 	}
 
 	_resp := &Response{
 		Headers:    resp.Header,
 		StatusCode: resp.StatusCode,
-		Body:       result,
+		Body:       &result,
 	}
 
 	return _resp, nil
