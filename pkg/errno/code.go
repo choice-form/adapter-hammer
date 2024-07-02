@@ -6,6 +6,7 @@ var (
 	ErrorUpdateCredential         = &APIError{HttpCode: 400, ErrCode: 4002, Errmsg: "更新配置错误，请检查参数是否正确"}
 	ErrorCreateOrUpdateCredential = &APIError{HttpCode: 400, ErrCode: 4003, Errmsg: "创建或更新连接器失败，请检查参数是否正确"}
 	ErrorStreamClientExists       = &APIError{HttpCode: 400, ErrCode: 4004, Errmsg: "stream client已存在,app_key重复创建"}
+	ErrorVerifyDingtalkClient_    = &APIError{HttpCode: 400, ErrCode: 4005, Errmsg: "验证钉钉客户端失败"}
 	ErrorDeleteCredential         = &APIError{HttpCode: 400, ErrCode: 4031, Errmsg: "拒绝执行，此连接器删除失败"}
 	ErrorNotFoundCredential       = &APIError{HttpCode: 404, ErrCode: 4041, Errmsg: "连接器不存在"}
 	ErrorParams                   = &APIError{HttpCode: 400, ErrCode: 4005, Errmsg: "请求参数错误"}
