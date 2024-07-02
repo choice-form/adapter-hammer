@@ -71,7 +71,35 @@ func (ct *AdapterRepo) Update(c context.Context, connectorID string, adap model.
 }
 
 func (ct *AdapterRepo) Delete(c context.Context, connectID string) error {
-	return ct.db.WithContext(c).Where("connector_id = ?", connectID).Delete(&model.Adapter{}).Error
+	tx := ct.db.Begin()
+
+	var adapter = &model.Adapter{}
+	tx.Where("connector_id = ?", connectID).Find(adapter)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			tx.Commit()
+			return nil
+		} else {
+			tx.Commit()
+			return tx.Error
+		}
+	}
+
+	tx.Where("adapter_id = ?", adapter.ID).Delete(&model.Config{})
+
+	if tx.Error != nil {
+		tx.Rollback()
+		return tx.Error
+	}
+
+	tx.Delete(adapter)
+	if tx.Error != nil {
+		tx.Rollback()
+		return tx.Error
+	}
+
+	tx.Commit()
+	return nil
 }
 
 func (ct *AdapterRepo) GetAllConnector(c context.Context) ([]model.Adapter, error) {
