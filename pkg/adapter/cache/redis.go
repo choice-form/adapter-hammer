@@ -45,6 +45,10 @@ func (rdb *RedisClient) Set(key string, value any, expire time.Duration) error {
 	return rdb.client.Set(context.Background(), key, value, expire).Err()
 }
 
+func (rdb *RedisClient) Client() *redis.Client {
+	return rdb.client
+}
+
 // func init() {
 // 	cfg := config.GetConfig()
 // 	rds := NewRedisClient(&cfg.Redis)
