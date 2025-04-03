@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "id": {
+      "type": "number",
+      "description": "The unique identifier for the object"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the object"
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of the object"
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of the object"
+    }
+  },
+  "properties": {
+    "InterfaceCall": {
+      "type": "object",
+      "properties": {
+        "POST/open-apis/im/v1/messages": {
+          "title": "Send a message",
+          "description": "Send a message to a chat",
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "$ref": "#/definitions/id"
+                },
+                "name": {
+                  "$ref": "#/definitions/name"
+                },
+                "description": {
+                  "$ref": "#/definitions/description"
+                },
+                "type": {
+                  "$ref": "#/definitions/type"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "type"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

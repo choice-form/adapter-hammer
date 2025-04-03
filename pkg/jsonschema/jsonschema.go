@@ -1,7 +1,6 @@
 package jsonschema
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -26,18 +25,16 @@ func (ve *ValidError) Error() string {
 type InterfaceCellProperty string
 
 var (
-	INPUT          InterfaceCellProperty = "input"
-	OUTPUT         InterfaceCellProperty = "output"
-	jsonSchemaFile                       = "jsonschema.json"
-	callPath                             = "properties.InterfaceCall.properties.%s.properties.input"
-	jsonSchemaMap                        = make(map[string]string) // 缓存jsonSchema
+	INPUT         InterfaceCellProperty = "input"
+	OUTPUT        InterfaceCellProperty = "output"
+	definitions                         = "definitions"
+	callPath                            = "properties.InterfaceCall.properties.%s.properties.input"
+	jsonSchemaMap                       = make(map[string]string) // 缓存jsonSchema
 )
 
 type ValidInput struct {
 	jsonSchema *string
-	schemaPath string
 	method     string
-	input      map[string]any
 }
 
 func NewValidInput(method string) *ValidInput {
@@ -60,20 +57,34 @@ func (v *ValidInput) SetJsonSchema(jsonSchemaPath string) error {
 	return nil
 }
 
+func (v *ValidInput) generateValidLoader(jsonSchemaPath string, gPath string) (*gojsonschema.Schema, error) {
+	// version := SchemaVersion(*v.jsonSchema)
+	defValue := gjson.Get(*v.jsonSchema, definitions).Value()
+	propertyValue := gjson.Get(*v.jsonSchema, gPath).Value()
+
+	if v, ok := propertyValue.(map[string]any); ok && defValue != nil {
+		v[definitions] = defValue
+	}
+
+	loader := gojsonschema.NewGoLoader(&propertyValue)
+	mainSchema := gojsonschema.NewSchemaLoader()
+	mainSchema.Draft = gojsonschema.Draft7
+	return mainSchema.Compile(loader)
+}
+
 // 验证 input 是否符合 jsonschema
 func (v *ValidInput) Valid(input map[string]any) (pass bool, err error) {
-	version := SchemaVersion(*v.jsonSchema)
-
-	propertyValue := gjson.Get(*v.jsonSchema, fmt.Sprintf(callPath, handleMethod(v.method)))
-	fmt.Printf("method: %s; value: %s\n", v.method, propertyValue)
-
-	var jsonMap map[string]any
-	json.Unmarshal([]byte(propertyValue.String()), &jsonMap)
-	jsonMap["$schema"] = version
-
-	loader := gojsonschema.NewGoLoader(&jsonMap)
+	schema, err := v.generateValidLoader(*v.jsonSchema, fmt.Sprintf(callPath, handleMethod(v.method)))
+	if err != nil {
+		return false, &ValidError{
+			Pass: false,
+			Err:  err,
+		}
+	}
 	inputLoader := gojsonschema.NewGoLoader(&input)
-	result, err := gojsonschema.Validate(loader, inputLoader)
+
+	result, err := schema.Validate(inputLoader)
+
 	if err != nil {
 		return false, &ValidError{
 			Pass: false,
